@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="description" content="Ứng dụng tính lãi coin đơn giản">
+  <title>Tính Lãi Coin</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="/icon.png">
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-blue-600 text-white p-4 shadow-md">
+    <div class="container mx-auto">
+      <h1 class="text-xl font-bold">Tính Lãi Coin - NDH</h1>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+      <!-- Input Fields -->
+      <div class="mb-4">
+        <label for="coinAmount" class="block text-gray-700 font-medium mb-1">Số coin đã mua</label>
+        <input type="number" id="coinAmount" min="0" step="0.0001"
+               class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="Nhập số coin">
+      </div>
+      <div class="mb-4">
+        <label for="buyPrice" class="block text-gray-700 font-medium mb-1">Giá mua vào (USD)</label>
+        <input type="number" id="buyPrice" min="0" step="0.01"
+               class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="Nhập giá mua">
+      </div>
+      <div class="mb-4">
+        <label for="sellPrice" class="block text-gray-700 font-medium mb-1">Giá bán ra (USD)</label>
+        <input type="number" id="sellPrice" min="0" step="0.01"
+               class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="Nhập giá bán">
+      </div>
+
+      <!-- Calculate Button -->
+      <button id="calculateBtn"
+              class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200">
+        Tính lãi
+      </button>
+
+      <!-- Result -->
+      <div id="result" class="mt-4 text-center text-lg font-medium text-gray-800"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2025 NDH. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // Load data from localStorage
+    const coinAmountInput = document.getElementById('coinAmount');
+    const buyPriceInput = document.getElementById('buyPrice');
+    const sellPriceInput = document.getElementById('sellPrice');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resultDiv = document.getElementById('result');
+
+    // Retrieve saved data
+    if (localStorage.getItem('coinAmount')) {
+      coinAmountInput.value = localStorage.getItem('coinAmount');
+    }
+    if (localStorage.getItem('buyPrice')) {
+      buyPriceInput.value = localStorage.getItem('buyPrice');
+    }
+
+    // Save data to localStorage on input change
+    coinAmountInput.addEventListener('input', () => {
+      localStorage.setItem('coinAmount', coinAmountInput.value);
+    });
+    buyPriceInput.addEventListener('input', () => {
+      localStorage.setItem('buyPrice', buyPriceInput.value);
+    });
+
+    // Calculate profit
+    calculateBtn.addEventListener('click', () => {
+      const coinAmount = parseFloat(coinAmountInput.value);
+      const buyPrice = parseFloat(buyPriceInput.value);
+      const sellPrice = parseFloat(sellPriceInput.value);
+
+      if (isNaN(coinAmount) || isNaN(buyPrice) || isNaN(sellPrice)) {
+        resultDiv.textContent = 'Vui lòng nhập đầy đủ và đúng định dạng số!';
+        resultDiv.classList.add('text-red-500');
+        return;
+      }
+
+      const profit = coinAmount * (sellPrice - buyPrice) * 25000;
+      resultDiv.textContent = `Lãi: ${profit.toLocaleString('vi-VN')} VNĐ`;
+      resultDiv.classList.remove('text-red-500');
+    });
+
+    // Service Worker Registration for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker registered'))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
